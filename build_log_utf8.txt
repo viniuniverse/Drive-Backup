@@ -1,0 +1,11 @@
+﻿Vers├úo do MSBuild 17.8.3+195e7f5a3 para .NET
+  Determinando os projetos a serem restaurados...
+  Todos os projetos est├úo atualizados para restaura├º├úo.
+  BackupDriver.Infrastructure -> C:\DRIVE BACKUP\projeto exe\src\BackupDriver.Infrastructure\bin\Release\net8.0\BackupDriver.Infrastructure.dll
+  BackupDriver.Core -> C:\DRIVE BACKUP\projeto exe\src\BackupDriver.Core\bin\Release\net8.0\BackupDriver.Core.dll
+C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\ViewModels\HealthcheckViewModel.cs(60,6): error CS0246: O nome do tipo ou do namespace "RelayCommandAttribute" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\BackupDriver.App.csproj]
+C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\ViewModels\HealthcheckViewModel.cs(60,6): error CS0246: O nome do tipo ou do namespace "RelayCommand" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\BackupDriver.App.csproj]
+C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\ViewModels\HealthcheckViewModel.cs(78,6): error CS0246: O nome do tipo ou do namespace "RelayCommandAttribute" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\BackupDriver.App.csproj]
+C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\ViewModels\HealthcheckViewModel.cs(78,6): error CS0246: O nome do tipo ou do namespace "RelayCommand" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\BackupDriver.App.csproj]
+C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\ViewModels\HealthcheckViewModel.cs(96,6): error CS0246: O nome do tipo ou do namespace "RelayCommandAttribute" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\BackupDriver.App.csproj]
+C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\ViewModels\HealthcheckViewModel.cs(96,6): error CS0246: O nome do tipo ou do namespace "RelayCommand" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\DRIVE BACKUP\projeto exe\src\BackupDriver.App\BackupDriver.App.csproj]
