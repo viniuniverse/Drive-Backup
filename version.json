@@ -1,0 +1,5 @@
+{
+  "version": "1.6.6",
+  "releaseUrl": "https://github.com/viniuniverse/Drive-Backup/releases/tag/v1.6.6",
+  "releaseNotes": "Versão 1.6.6 — lançamento público inicial. Backup local e em nuvem, agendamento automático, healthcheck e notificações."
+}

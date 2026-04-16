@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BackupDriver.App.ViewModels"
+             x:Class="BackupDriver.App.Views.RestoreView"
+             x:DataType="vm:RestoreViewModel">
+
+    <!-- v1.6: Paleta Obsidian Gold (ADR-01) -->
+    <ScrollViewer>
+        <StackPanel Spacing="12" Margin="10">
+            <TextBlock Text="🔄 Restore de Banco" FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource AccentSecondary}"/>
+
+            <TextBlock Text="Arquivo de backup (.FBK ou .zip):" Foreground="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding BackupFilePath}" Watermark="C:\Empresa\Backup\DADOS_20260327.zip"/>
+                <Button Grid.Column="1" Content="📁" Command="{Binding BrowseBackupFileCommand}"
+                        ToolTip.Tip="Selecionar arquivo" Background="{DynamicResource CardBorder}"
+                        Foreground="{DynamicResource AccentSecondary}" Padding="8,6"/>
+            </Grid>
+
+            <TextBlock Text="Senha do ZIP (apenas para .zip):" Foreground="{DynamicResource TextMuted}"/>
+            <TextBox Text="{Binding ZipPassword}" PasswordChar="•" Watermark="deixe vazio para .FBK"/>
+
+            <TextBlock Text="Pasta de destino (onde o banco será criado):" Foreground="{DynamicResource TextMuted}"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding TargetDirectory}" Watermark="C:\Empresa\Dados"/>
+                <Button Grid.Column="1" Content="📁" Command="{Binding BrowseTargetFolderCommand}"
+                        ToolTip.Tip="Selecionar pasta" Background="{DynamicResource CardBorder}"
+                        Foreground="{DynamicResource AccentSecondary}" Padding="8,6"/>
+            </Grid>
+
+            <TextBlock Text="Caminho do binário GBAK (Pasta do executável):" Foreground="{DynamicResource TextMuted}"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding GbakRestorePath}" Watermark="C:\Program Files\Firebird\Firebird_X_Y"/>
+                <Button Grid.Column="1" Content="📁" Command="{Binding BrowseGbakPathCommand}"
+                        ToolTip.Tip="Selecionar pasta do GBAK" Background="{DynamicResource CardBorder}"
+                        Foreground="{DynamicResource AccentSecondary}" Padding="8,6"/>
+            </Grid>
+
+            <TextBlock Text="────────── Progresso ──────────" Foreground="{DynamicResource CardBorder}"
+                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
+
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="15"
+                    BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Grid.Column="0" Text="[1] 📦" Foreground="{DynamicResource TextMuted}"/>
+                        <TextBlock Grid.Column="1" Text="Descomprimindo..." Foreground="{DynamicResource AccentSecondary}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding ExtractProgress}" Foreground="{DynamicResource TextMuted}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Grid.Column="0" Text="[2] 🔄" Foreground="{DynamicResource TextMuted}"/>
+                        <TextBlock Grid.Column="1" Text="Restaurando banco" Foreground="{DynamicResource AccentSecondary}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding ProgressMessage}" Foreground="{DynamicResource TextMuted}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Padding="12" Margin="0,10,0,0"
+                    Background="#3A2800" BorderBrush="{DynamicResource WarningColor}" BorderThickness="1">
+                <TextBlock Text="⚠️ ATENÇÃO: O processo de restore é destrutivo se o banco já existir no destino!"
+                           Foreground="{DynamicResource WarningColor}" TextWrapping="Wrap"/>
+            </Border>
+
+            <Button Content="▶️ Iniciar Restore"
+                    Command="{Binding StartRestoreCommand}"
+                    IsEnabled="{Binding !IsRestoring}"
+                    Background="{DynamicResource InfoColor}" Foreground="White"
+                    Padding="20,10" FontSize="14"
+                    HorizontalAlignment="Center" Margin="0,10,0,0"/>
+
+            <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource InfoColor}"
+                       IsVisible="{Binding StatusMessage, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

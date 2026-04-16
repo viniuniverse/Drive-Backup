@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BackupDriver.App.ViewModels"
+             x:Class="BackupDriver.App.Views.RcloneConfigView"
+             x:DataType="vm:RcloneConfigViewModel">
+
+    <!-- v1.6: Paleta Obsidian Gold + campo retenção cloud (T-1.6.23) -->
+    <ScrollViewer>
+        <StackPanel Spacing="12" Margin="10">
+            <TextBlock Text="☁️ Configuração Google Drive" FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource AccentSecondary}"/>
+
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="15" Margin="0,10,0,0"
+                    BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Status:" Foreground="{DynamicResource TextMuted}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding StatusIcon}" FontSize="20"/>
+                        <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource AccentSecondary}"
+                                   FontSize="16" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <ToggleSwitch IsChecked="{Binding GoogleDriveEnabled}"
+                          OnContent="Habilitado" OffContent="Desabilitado"
+                          Foreground="{DynamicResource AccentSecondary}" Margin="0,10,0,0"/>
+            <TextBlock Text="Habilitar upload para Google Drive" Foreground="{DynamicResource TextMuted}"/>
+
+            <TextBlock Text="Pasta raiz no Google Drive:" Foreground="{DynamicResource TextMuted}"/>
+            <TextBox Text="{Binding RemoteRoot}" Watermark="BackupsFirebird"/>
+
+            <TextBlock Text="Subpasta por cliente (automático):" Foreground="{DynamicResource TextMuted}"/>
+            <TextBox Text="{Binding ClientName}" IsReadOnly="True" Opacity="0.6"/>
+
+            <!-- v1.6: T-1.6.23 — Campo de retenção cloud (horas) -->
+            <TextBlock Text="Retenção na nuvem (horas):" Foreground="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
+            <NumericUpDown Value="{Binding CloudRetentionHours}" Minimum="24" Maximum="8760" FormatString="0"/>
+            <TextBlock Text="Backups mais antigos que este período serão removidos automaticamente do Google Drive."
+                       Foreground="{DynamicResource CardBorder}" FontSize="11" FontStyle="Italic"/>
+
+            <Separator Background="{DynamicResource SeparatorColor}" Height="1" Margin="0,10"/>
+
+            <TextBlock Text="Clique em 'Configurar Google Drive' para iniciar o assistente de autenticação OAuth."
+                       Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                <Button Content="⚙️ Configurar Google Drive"
+                        Command="{Binding ConfigureCommand}"
+                        IsEnabled="{Binding !IsConfiguring}"
+                        Background="{DynamicResource InfoColor}" Foreground="White" Padding="15,8"/>
+                <Button Content="🧪 Testar Upload"
+                        Command="{Binding TestUploadCommand}"
+                        IsEnabled="{Binding !IsTesting}"
+                        Background="{DynamicResource CardBorder}" Foreground="{DynamicResource AccentSecondary}" Padding="15,8"/>
+                <Button Content="❌ Desvincular"
+                        Command="{Binding UnbindCommand}"
+                        IsEnabled="{Binding IsConfigured}"
+                        Background="{DynamicResource ErrorColor}" Foreground="White" Padding="15,8"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0" HorizontalAlignment="Right">
+                <Button Content="💾 Salvar"
+                        Command="{Binding SaveConfigCommand}"
+                        Background="{DynamicResource SuccessColor}" Foreground="White" Padding="15,8"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource InfoColor}"
+                       IsVisible="{Binding StatusMessage, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- v1.6: Ícone customizado Backup Driver -->
+    <ApplicationIcon>Assets\backup-driver.ico</ApplicationIcon>
+    <OutputPath>..\..\builds\$(Configuration)\1.6.6</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <!-- Task 2 Versioning -->
+    <Version>1.6.6</Version>
+    <AssemblyVersion>1.6.6.0</AssemblyVersion>
+    <FileVersion>1.6.6.0</FileVersion>
+  </PropertyGroup>
+
+  <!-- Task 3 Obfuscar Config -->
+  <ItemGroup>
+    <None Update="obfuscar.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
+    <PackageReference Include="SukiUI" Version="6.0.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <!-- Task 3 -->
+    <PackageReference Include="Obfuscar" Version="2.2.39" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BackupDriver.Core\BackupDriver.Core.csproj" />
+    <ProjectReference Include="..\BackupDriver.Infrastructure\BackupDriver.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <!-- Post Build for Obfuscar -->
+  <Target Name="ObfuscarTask" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+    <Exec Command="&quot;$(Obfuscar)&quot; obfuscar.xml" WorkingDirectory="$(OutDir)" />
+  </Target>
+</Project>

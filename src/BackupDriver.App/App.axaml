@@ -1,0 +1,34 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="BackupDriver.App.App"
+             xmlns:local="using:BackupDriver.App"
+             xmlns:sukiUi="using:SukiUI"
+             RequestedThemeVariant="Default">
+
+    <!-- v1.6: Paleta Obsidian Gold (ADR-01) — NUNCA usar cores hardcoded nos .axaml -->
+    <Application.Resources>
+        <SolidColorBrush x:Key="BackgroundPrimary" Color="#0A0A0B"/>
+        <SolidColorBrush x:Key="CardBackground" Color="#161618"/>
+        <SolidColorBrush x:Key="CardBorder" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="AccentPrimary" Color="#D4AF37"/>
+        <SolidColorBrush x:Key="AccentSecondary" Color="#F5F5F7"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#9E9E9E"/>
+        <SolidColorBrush x:Key="SuccessColor" Color="#4CAF50"/>
+        <SolidColorBrush x:Key="ErrorColor" Color="#F44336"/>
+        <SolidColorBrush x:Key="WarningColor" Color="#FFA726"/>
+        <SolidColorBrush x:Key="InfoColor" Color="#4FC3F7"/>
+        <!-- Gradientes para cards Bento (v1.6) -->
+        <SolidColorBrush x:Key="CardGradientStart" Color="#1E1E20"/>
+        <SolidColorBrush x:Key="CardGradientEnd" Color="#161618"/>
+        <SolidColorBrush x:Key="SeparatorColor" Color="#333333"/>
+        <SolidColorBrush x:Key="SidebarBackground" Color="#0D0D0E"/>
+    </Application.Resources>
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <sukiUi:SukiTheme />
+    </Application.Styles>
+</Application>

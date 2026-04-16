@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:BackupDriver.App.ViewModels"
+        xmlns:v="using:BackupDriver.App.Views"
+        xmlns:sukiUi="using:SukiUI"
+        x:Class="BackupDriver.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Backup Driver V1"
+        Icon="avares://BackupDriver.App/Assets/backup-driver.ico"
+        Width="1024" Height="720"
+        MinWidth="800" MinHeight="500"
+        WindowStartupLocation="CenterScreen">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <!-- v1.6: Layout com paleta Obsidian Gold (ADR-01) -->
+    <Grid ColumnDefinitions="200,*">
+        <!-- Sidebar com fundo Obsidian -->
+        <Border Grid.Column="0" Background="{DynamicResource SidebarBackground}" Padding="10">
+            <StackPanel Spacing="5">
+                <TextBlock Text="🔧 Backup Driver" FontSize="16" FontWeight="Bold"
+                           Foreground="{DynamicResource AccentPrimary}" Margin="0,10,0,20"/>
+
+                <Button Content="🏠 Dashboard" Command="{Binding NavigateToCommand}" CommandParameter="Dashboard"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=Dashboard}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+
+                <Button Content="⚙️ Configuração" Command="{Binding NavigateToCommand}" CommandParameter="Config"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=Config}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+
+                <Button Content="☁️ Google Drive" Command="{Binding NavigateToCommand}" CommandParameter="RcloneConfig"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=RcloneConfig}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+
+                <Button Content="⏰ Agendamento" Command="{Binding NavigateToCommand}" CommandParameter="Schedule"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=Schedule}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+
+                <Button Content="🔄 Restore" Command="{Binding NavigateToCommand}" CommandParameter="Restore"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=Restore}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+
+                <Button Content="📋 Logs" Command="{Binding NavigateToCommand}" CommandParameter="Logs"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=Logs}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+
+                <Button Content="📡 Healthcheck" Command="{Binding NavigateToCommand}" CommandParameter="Healthcheck"
+                        HorizontalContentAlignment="Left" Padding="12,8"
+                        Background="{Binding SelectedMenuItem, Converter={x:Static v:MenuHighlightConverter.Instance}, ConverterParameter=Healthcheck}"
+                        Foreground="{DynamicResource AccentSecondary}" BorderThickness="0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Área de conteúdo principal -->
+        <Border Grid.Column="1" Background="{DynamicResource BackgroundPrimary}" Padding="20">
+            <ContentControl Content="{Binding CurrentPage}">
+                <ContentControl.DataTemplates>
+                    <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+                        <v:DashboardView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:ConfigViewModel}">
+                        <v:ConfigView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:ScheduleViewModel}">
+                        <v:ScheduleView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:RestoreViewModel}">
+                        <v:RestoreView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:LogsViewModel}">
+                        <v:LogsView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:RcloneConfigViewModel}">
+                        <v:RcloneConfigView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:HealthcheckViewModel}">
+                        <v:HealthcheckView/>
+                    </DataTemplate>
+                </ContentControl.DataTemplates>
+            </ContentControl>
+        </Border>
+    </Grid>
+</Window>
