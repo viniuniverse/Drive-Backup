@@ -226,7 +226,8 @@ public class DialogService : IDialogService
         {
             var owner = desktop.MainWindow;
             if (owner != null)
-                await dialog.ShowDialogAsync(owner);
+                // ShowDialog é o método correto no Avalonia — mostra modal e aguarda fechamento
+                dialog.ShowDialog(owner);
             else
                 dialog.Show();
         }
