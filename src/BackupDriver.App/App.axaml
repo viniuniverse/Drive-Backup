@@ -12,7 +12,7 @@
         <SolidColorBrush x:Key="CardBorder" Color="#2D2D30"/>
         <SolidColorBrush x:Key="AccentPrimary" Color="#D4AF37"/>
         <SolidColorBrush x:Key="AccentSecondary" Color="#F5F5F7"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#9E9E9E"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="SuccessColor" Color="#4CAF50"/>
         <SolidColorBrush x:Key="ErrorColor" Color="#F44336"/>
         <SolidColorBrush x:Key="WarningColor" Color="#FFA726"/>
@@ -30,5 +30,12 @@
   
     <Application.Styles>
         <sukiUi:SukiTheme />
+        <!-- v1.6.6: Overrides de Contraste — Acentua a legibilidade em monitores escuros -->
+        <Style Selector="TextBox">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="NumericUpDown">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
     </Application.Styles>
 </Application>

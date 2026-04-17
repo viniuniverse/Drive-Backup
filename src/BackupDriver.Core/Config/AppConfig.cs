@@ -25,6 +25,8 @@ public class FirebirdConfig
     public string DbPath { get; set; } = string.Empty;
     public string User { get; set; } = "SYSDBA";
     public string Password { get; set; } = string.Empty;
+    // v1.6.6: Porta customizada do Firebird (Padrão: 3050)
+    public int Port { get; set; } = 3050;
 }
 
 public class BackupConfig

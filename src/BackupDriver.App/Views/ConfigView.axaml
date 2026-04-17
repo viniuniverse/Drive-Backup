@@ -28,7 +28,7 @@
                             Foreground="{DynamicResource AccentSecondary}" Padding="8,6"/>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Usuário:" Foreground="{DynamicResource TextMuted}"/>
                         <TextBox Text="{Binding User}"/>
@@ -36,6 +36,10 @@
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="Senha:" Foreground="{DynamicResource TextMuted}"/>
                         <TextBox Text="{Binding Password}" PasswordChar="•"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Porta:" Foreground="{DynamicResource TextMuted}"/>
+                        <NumericUpDown Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>

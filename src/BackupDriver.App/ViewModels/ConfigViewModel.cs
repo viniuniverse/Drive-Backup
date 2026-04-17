@@ -33,6 +33,9 @@ public partial class ConfigViewModel : ViewModelBase
     private string _password = string.Empty;
 
     [ObservableProperty]
+    private int _port = 3050; // New v1.6.6
+
+    [ObservableProperty]
     private string _backupOutputPath = string.Empty;
 
     [ObservableProperty]
@@ -81,6 +84,7 @@ public partial class ConfigViewModel : ViewModelBase
         DbPath = config.Firebird.DbPath;
         User = config.Firebird.User;
         Password = config.Firebird.Password;
+        Port = config.Firebird.Port;
         BackupOutputPath = config.Backup.OutputPath;
         ZipPassword = config.Backup.ZipPassword;
         RetentionHours = config.Backup.RetentionHours;
@@ -98,47 +102,62 @@ public partial class ConfigViewModel : ViewModelBase
             return;
         }
 
-        IsTesting = true;
-        ConnectionTestResult = "Testando conexão...";
-
-        var gbakPath = System.IO.Path.Combine(FirebirdPath, "gbak.exe");
-        if (!_fileSystem.FileExists(gbakPath))
+        try
         {
-            ConnectionTestResult = "❌ gbak.exe não encontrado no caminho informado.";
+            IsTesting = true;
+            ConnectionTestResult = "Testando conexão...";
+
+            var gbakPath = System.IO.Path.Combine(FirebirdPath, "gbak.exe");
+            if (!_fileSystem.FileExists(gbakPath))
+            {
+                ConnectionTestResult = "❌ gbak.exe não encontrado no caminho informado.";
+                await _dialogService.ShowMessageAsync("Falha na Conexão", "gbak.exe não encontrado no caminho informado.", DialogType.Error);
+                return;
+            }
+
+            if (!_fileSystem.FileExists(DbPath))
+            {
+                ConnectionTestResult = "❌ Arquivo .FDB não encontrado.";
+                await _dialogService.ShowMessageAsync("Falha na Conexão", "Arquivo .FDB não encontrado.", DialogType.Error);
+                return;
+            }
+
+            var processRunner = new ProcessRunner();
+            var result = await processRunner.RunAsync(
+                gbakPath,
+                $"-b -user {User} -pass {Password} \"localhost/{Port}:{DbPath}\" nul -v",
+                new ProcessRunnerOptions { Timeout = TimeSpan.FromSeconds(30), CancellationToken = token }
+            );
+
+            if (result.Success)
+            {
+                _ = SetTransientStatusAsync(s => ConnectionTestResult = s, "✅ Conexão bem-sucedida!");
+                _logger.Ok("Teste de conexão Firebird bem-sucedido.");
+                await _dialogService.ShowMessageAsync("Conexão Bem-sucedida", "A conexão com o banco Firebird foi estabelecida com sucesso!", DialogType.Success);
+            }
+            else
+            {
+                _ = SetTransientStatusAsync(s => ConnectionTestResult = s, $"❌ Falha: {result.StandardError}");
+                _logger.Error($"Teste de conexão falhou: {result.StandardError}");
+                await _dialogService.ShowMessageAsync("Falha na Conexão", $"Não foi possível conectar ao banco Firebird.\n\nDetalhe: {result.StandardError}", DialogType.Error);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            ConnectionTestResult = "❌ Operação cancelada.";
+        }
+        catch (Exception ex)
+        {
+            // T1: Fixar Falhas - Notificar timeout ou erro desconhecido
+            ConnectionTestResult = "❌ Falha ao conectar: Tempo limite excedido ou erro desconhecido.";
+            _logger.Error($"Exceção no teste de conexão: {ex.Message}");
+            await _dialogService.ShowMessageAsync("Falha na Conexão", $"Erro inesperado: {ex.Message}", DialogType.Error);
+        }
+        finally
+        {
+            // T1: Estabilizar - Centralizar reset do estado de teste
             IsTesting = false;
-            await _dialogService.ShowMessageAsync("Falha na Conexão", "gbak.exe não encontrado no caminho informado.", DialogType.Error);
-            return;
         }
-
-        if (!_fileSystem.FileExists(DbPath))
-        {
-            ConnectionTestResult = "❌ Arquivo .FDB não encontrado.";
-            IsTesting = false;
-            await _dialogService.ShowMessageAsync("Falha na Conexão", "Arquivo .FDB não encontrado.", DialogType.Error);
-            return;
-        }
-
-        var processRunner = new ProcessRunner();
-        var result = await processRunner.RunAsync(
-            gbakPath,
-            $"-b -user {User} -pass {Password} \"{DbPath}\" nul -v",
-            new ProcessRunnerOptions { Timeout = TimeSpan.FromSeconds(30), CancellationToken = token }
-        );
-
-        if (result.Success)
-        {
-            _ = SetTransientStatusAsync(s => ConnectionTestResult = s, "✅ Conexão bem-sucedida!");
-            _logger.Ok("Teste de conexão Firebird bem-sucedido.");
-            await _dialogService.ShowMessageAsync("Conexão Bem-sucedida", "A conexão com o banco Firebird foi estabelecida com sucesso!", DialogType.Success);
-        }
-        else
-        {
-            _ = SetTransientStatusAsync(s => ConnectionTestResult = s, $"❌ Falha: {result.StandardError}");
-            _logger.Error($"Teste de conexão falhou: {result.StandardError}");
-            await _dialogService.ShowMessageAsync("Falha na Conexão", $"Não foi possível conectar ao banco Firebird.\n\nDetalhe: {result.StandardError}", DialogType.Error);
-        }
-
-        IsTesting = false;
     }
 
     [RelayCommand]
@@ -180,6 +199,7 @@ public partial class ConfigViewModel : ViewModelBase
         config.Firebird.DbPath = DbPath;
         config.Firebird.User = User;
         config.Firebird.Password = Password;
+        config.Firebird.Port = Port;
         config.Backup.OutputPath = BackupOutputPath;
         config.Backup.ZipPassword = ZipPassword;
         config.Backup.RetentionHours = RetentionHours;
@@ -204,6 +224,7 @@ public partial class ConfigViewModel : ViewModelBase
         DbPath = string.Empty;
         User = "SYSDBA";
         Password = string.Empty;
+        Port = 3050;
         BackupOutputPath = string.Empty;
         ZipPassword = string.Empty;
         RetentionHours = 72;
