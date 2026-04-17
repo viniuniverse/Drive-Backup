@@ -54,7 +54,26 @@ public class RcloneConfigurator : IRcloneConfigurator
             new ProcessRunnerOptions
             {
                 Timeout = TimeSpan.FromMinutes(5),
-                OnOutputLine = line => onProgress?.Invoke(line),
+                OnOutputLine = line => 
+                {
+                    onProgress?.Invoke(line);
+                    
+                    // Task 3: Isolamento Anônimo de Sessão
+                    var match = System.Text.RegularExpressions.Regex.Match(line, @"http://(127\.0\.0\.1|localhost):\d+(/[^\s]*)?");
+                    if (match.Success)
+                    {
+                        var url = match.Value;
+                        if (!TryLaunchIncognito(url))
+                        {
+                            // Fallback se nenhum anônimo funcionar
+                            try 
+                            { 
+                                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = url, UseShellExecute = true }); 
+                            } 
+                            catch { }
+                        }
+                    }
+                },
                 CancellationToken = ct
             }
         );
@@ -135,5 +154,36 @@ public class RcloneConfigurator : IRcloneConfigurator
         {
             _logger.Error($"Erro ao tentar encerrar processos zumbis do rclone: {ex.Message}");
         }
+    }
+
+    private bool TryLaunchIncognito(string url)
+    {
+        var browsers = new[]
+        {
+            new { Name = "chrome.exe", Args = "--incognito" },
+            new { Name = "msedge.exe", Args = "-inprivate" },
+            new { Name = "firefox.exe", Args = "-private-window" }
+        };
+
+        foreach (var browser in browsers)
+        {
+            try
+            {
+                var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = browser.Name,
+                    Arguments = $"{browser.Args} \"{url}\"",
+                    UseShellExecute = true
+                });
+                
+                if (p != null)
+                {
+                    _logger.Ok($"Navegador {browser.Name} aberto em modo anônimo para OAuth.");
+                    return true;
+                }
+            }
+            catch { /* ignorar e tentar próximo navegador */ }
+        }
+        return false;
     }
 }

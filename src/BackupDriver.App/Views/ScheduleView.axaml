@@ -74,27 +74,27 @@
                 
                 <StackPanel Orientation="Horizontal" Spacing="30">
                     <RadioButton Content="Intervalo Regular" IsChecked="{Binding IsIntervalMode}"
-                                 Foreground="{DynamicResource AccentSecondary}" GroupName="ScheduleMode" FontSize="14"/>
+                                 Foreground="White" GroupName="ScheduleMode" FontSize="14"/>
                     <RadioButton Content="Horário Diário Fixo" IsChecked="{Binding IsFixedTimeMode}"
-                                 Foreground="{DynamicResource AccentSecondary}" GroupName="ScheduleMode" FontSize="14"/>
+                                 Foreground="White" GroupName="ScheduleMode" FontSize="14"/>
                 </StackPanel>
 
                 <!-- Painel Alternativo -->
                 <Panel>
                     <!-- Modo Intervalo -->
                     <StackPanel Spacing="10" IsVisible="{Binding IsIntervalMode}">
-                        <TextBlock Text="Intervalo entre backups (em horas):" Foreground="{DynamicResource TextMuted}"/>
+                        <TextBlock Text="Intervalo entre backups (em horas):" Foreground="White"/>
                         <NumericUpDown Value="{Binding IntervalHours}" Minimum="1" Maximum="24" FormatString="0" FontSize="16"/>
                         <TextBlock Text="Dica: Backups mais frequentes garantem menor perda de dados."
-                                   Foreground="{DynamicResource CardBorder}" FontSize="11" FontStyle="Italic"/>
+                                   Foreground="White" Opacity="0.7" FontSize="11" FontStyle="Italic"/>
                     </StackPanel>
 
                     <!-- Modo Horário Fixo -->
                     <StackPanel Spacing="10" IsVisible="{Binding IsFixedTimeMode}">
-                        <TextBlock Text="Hora do backup diário (HH:mm):" Foreground="{DynamicResource TextMuted}"/>
+                        <TextBlock Text="Hora do backup diário (HH:mm):" Foreground="White"/>
                         <TextBox Text="{Binding FixedTime}" Watermark="02:00" FontSize="16"/>
                         <TextBlock Text="Exemplo: 02:00 para madrugada ou 22:30 para fim do expediente."
-                                   Foreground="{DynamicResource CardBorder}" FontSize="11" FontStyle="Italic"/>
+                                   Foreground="White" Opacity="0.7" FontSize="11" FontStyle="Italic"/>
                     </StackPanel>
                 </Panel>
             </StackPanel>

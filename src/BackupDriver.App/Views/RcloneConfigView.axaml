@@ -37,7 +37,7 @@
             <TextBlock Text="Retenção na nuvem (horas):" Foreground="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
             <NumericUpDown Value="{Binding CloudRetentionHours}" Minimum="24" Maximum="8760" FormatString="0"/>
             <TextBlock Text="Backups mais antigos que este período serão removidos automaticamente do Google Drive."
-                       Foreground="{DynamicResource CardBorder}" FontSize="11" FontStyle="Italic"/>
+                       Foreground="White" Opacity="0.7" FontSize="11" FontStyle="Italic"/>
 
             <Separator Background="{DynamicResource SeparatorColor}" Height="1" Margin="0,10"/>
 

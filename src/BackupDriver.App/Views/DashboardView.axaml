@@ -135,7 +135,7 @@
                         <TextBlock Text="{Binding NextBackupTime}"
                                    Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap"/>
                         <TextBlock Text="Mantenha o app em execução ou na bandeja."
-                                   FontSize="11" Foreground="{DynamicResource CardBorder}" Margin="0,10,0,0"/>
+                                   FontSize="11" Foreground="White" Opacity="0.7" Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
 

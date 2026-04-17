@@ -3,7 +3,7 @@
              x:Class="BackupDriver.App.App"
              xmlns:local="using:BackupDriver.App"
              xmlns:sukiUi="using:SukiUI"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
 
     <!-- v1.6: Paleta Obsidian Gold (ADR-01) — NUNCA usar cores hardcoded nos .axaml -->
     <Application.Resources>
@@ -31,11 +31,29 @@
     <Application.Styles>
         <sukiUi:SukiTheme />
         <!-- v1.6.6: Overrides de Contraste — Acentua a legibilidade em monitores escuros -->
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="Expander">
+            <Setter Property="Margin" Value="0,2,0,2"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+        <Style Selector="ToggleSwitch">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
         <Style Selector="TextBox">
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="FontSize" Value="12"/>
         </Style>
         <Style Selector="NumericUpDown">
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="FontSize" Value="12"/>
         </Style>
     </Application.Styles>
 </Application>
