@@ -20,6 +20,11 @@ public partial class ConfigViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
     private readonly IFolderPickerService _folderPickerService;
 
+    // v1.7.0: Serviços de licenciamento PRO (ADR-005 / T1-T2)
+    private readonly ILicenseValidatorService _licenseValidator;
+    private readonly ILicenseStorage _licenseStorage;
+    private MainWindowViewModel? _mainWindowVm;
+
     [ObservableProperty]
     private string _firebirdPath = string.Empty;
 
@@ -60,13 +65,25 @@ public partial class ConfigViewModel : ViewModelBase
     [ObservableProperty]
     private string _statusMessage = string.Empty;
 
+    // v1.7.0: Feature Toggle PRO — campo de entrada e status da licença (ADR-005 / T4)
+    [ObservableProperty]
+    private string _licenseKey = string.Empty;
+
+    [ObservableProperty]
+    private string _licenseStatus = string.Empty;
+
+    [ObservableProperty]
+    private bool _isActivatingLicense;
+
     public ConfigViewModel(
         IConfigManager configManager,
         ISecureStorage secureStorage,
         IFileSystemService fileSystem,
         ILogger logger,
         IDialogService dialogService,
-        IFolderPickerService folderPickerService)
+        IFolderPickerService folderPickerService,
+        ILicenseValidatorService licenseValidator,
+        ILicenseStorage licenseStorage)
     {
         _configManager = configManager;
         _secureStorage = secureStorage;
@@ -74,8 +91,16 @@ public partial class ConfigViewModel : ViewModelBase
         _logger = logger;
         _dialogService = dialogService;
         _folderPickerService = folderPickerService;
+        _licenseValidator = licenseValidator;
+        _licenseStorage = licenseStorage;
         LoadConfig();
     }
+
+    /// <summary>
+    /// Referencia o MainWindowViewModel para propagar SetProState após ativação.
+    /// Injetado pelo App.axaml.cs após construção do DI.
+    /// </summary>
+    internal void SetMainWindowViewModel(MainWindowViewModel vm) => _mainWindowVm = vm;
 
     private void LoadConfig()
     {
@@ -258,4 +283,80 @@ public partial class ConfigViewModel : ViewModelBase
         if (result != null)
             BackupOutputPath = result;
     }
-}
+
+    // ─── Licenciamento PRO (ADR-005 / T4) ────────────────────────────────────
+
+    /// <summary>
+    /// Valida a chave digitada pelo usuário via RSA, persiste com DPAPI e ativa o modo PRO.
+    /// </summary>
+    [RelayCommand]
+    private async Task ActivateLicenseAsync()
+    {
+        if (string.IsNullOrWhiteSpace(LicenseKey))
+        {
+            LicenseStatus = "⚠️ Cole sua chave de licença no campo acima.";
+            return;
+        }
+
+        IsActivatingLicense = true;
+        LicenseStatus = "⏳ Validando licença...";
+
+        try
+        {
+            // Validação criptográfica RSA (não bloqueia a UI por rodar via Task.Run)
+            var claims = await Task.Run(() => _licenseValidator.ValidateLicense(LicenseKey));
+
+            if (claims == null || claims.Tier != "PRO")
+            {
+                LicenseStatus = "❌ Chave inválida ou expirada. Verifique e tente novamente.";
+                _logger.Error("Tentativa de ativação de licença PRO falhou: chave inválida.");
+                return;
+            }
+
+            // Persistir a licença de forma segura com DPAPI
+            _licenseStorage.Save(LicenseKey);
+
+            // Propagar o estado PRO para toda a aplicação
+            _mainWindowVm?.SetProState(true);
+
+            var expiryText = claims.Expires.HasValue
+                ? $" | Válida até: {claims.Expires.Value:dd/MM/yyyy}"
+                : "";
+
+            LicenseStatus = $"✅ Licença PRO ativada! Cliente: {claims.Client}{expiryText}";
+            _logger.Ok($"Licença PRO ativada para: {claims.Client}");
+
+            await _dialogService.ShowMessageAsync(
+                "🎉 Licença PRO Ativada!",
+                $"Bem-vindo ao Drive Backup PRO, {claims.Client}!\n\nTodas as funcionalidades corporativas estão liberadas.",
+                DialogType.Success);
+        }
+        catch (Exception ex)
+        {
+            LicenseStatus = "❌ Erro ao processar a licença.";
+            _logger.Error($"Exceção ao ativar licença: {ex.Message}");
+        }
+        finally
+        {
+            IsActivatingLicense = false;
+        }
+    }
+
+    /// <summary>
+    /// Remove a licença salva e retorna ao modo FREE.
+    /// </summary>
+    [RelayCommand]
+    private async Task ClearLicenseAsync()
+    {
+        _licenseStorage.Clear();
+        _mainWindowVm?.SetProState(false);
+        LicenseKey = string.Empty;
+        LicenseStatus = "🔓 Licença removida. Modo FREE ativado.";
+        _logger.Ok("Licença PRO removida pelo usuário.");
+
+        await _dialogService.ShowMessageAsync(
+            "Licença Removida",
+            "A licença PRO foi removida. O software voltou ao modo FREE.",
+            DialogType.Info);
+    }
+}

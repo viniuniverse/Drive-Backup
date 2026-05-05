@@ -5,7 +5,7 @@
         xmlns:sukiUi="using:SukiUI"
         x:Class="BackupDriver.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Backup Driver V1"
+        Title="Backup Driver V1.7"
         Icon="avares://BackupDriver.App/Assets/backup-driver.ico"
         Width="1024" Height="720"
         MinWidth="800" MinHeight="500"

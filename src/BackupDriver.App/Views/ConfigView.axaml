@@ -101,6 +101,59 @@
                    IsVisible="{Binding ConnectionTestResult, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
         <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource InfoColor}"
                    IsVisible="{Binding StatusMessage, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
+
+        <!-- v1.7.0: Licença PRO — Feature Toggle (ADR-005 / T4) -->
+        <Expander Header="🔑 Licença PRO" IsExpanded="False" Margin="0,10,0,0">
+            <StackPanel Spacing="10" Margin="0,12,0,0">
+                <!-- Descrição -->
+                <Border CornerRadius="6" Padding="12,8"
+                        Background="#1A2A1A" BorderBrush="{DynamicResource SuccessColor}" BorderThickness="1">
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextMuted}">
+                        <Run Text="Use o Drive Backup PRO para desbloquear funcionalidades corporativas exclusivas."/>
+                        <LineBreak/>
+                        <Run Text="Cole abaixo a chave fornecida pela equipe e clique em Ativar."/>
+                    </TextBlock>
+                </Border>
+
+                <!-- Indicador de status atual -->
+                <Border CornerRadius="6" Padding="10,8" Background="#1A1A2A"
+                        BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding IsProVersion, Converter={x:Static vm:ProVersionBadgeConverter.Instance}}"
+                                   FontWeight="Bold" Foreground="{DynamicResource AccentSecondary}" FontSize="13"/>
+                        <TextBlock Text="— Versão ativa" Foreground="{DynamicResource TextMuted}" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Input da licença -->
+                <TextBlock Text="Chave de Licença:" Foreground="{DynamicResource TextMuted}"/>
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                    <TextBox Grid.Column="0"
+                             Text="{Binding LicenseKey}"
+                             Watermark="Cole aqui a sua chave de licença PRO..."
+                             FontFamily="Consolas,monospace"
+                             FontSize="12"/>
+                    <Button Grid.Column="1"
+                            Content="⚡ Ativar"
+                            Command="{Binding ActivateLicenseCommand}"
+                            IsEnabled="{Binding !IsActivatingLicense}"
+                            Background="{DynamicResource AccentPrimary}"
+                            Foreground="White" Padding="14,8" FontWeight="Bold"/>
+                    <Button Grid.Column="2"
+                            Content="🗑️ Remover"
+                            Command="{Binding ClearLicenseCommand}"
+                            Background="{DynamicResource CardBorder}"
+                            Foreground="{DynamicResource TextMuted}" Padding="12,8"/>
+                </Grid>
+
+                <!-- Feedback de status da ativação -->
+                <TextBlock Text="{Binding LicenseStatus}"
+                           Foreground="{DynamicResource AccentSecondary}"
+                           FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap"
+                           IsVisible="{Binding LicenseStatus, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
+            </StackPanel>
+        </Expander>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>
