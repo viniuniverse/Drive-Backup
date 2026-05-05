@@ -7,13 +7,19 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- v1.6: Ícone customizado Backup Driver -->
     <ApplicationIcon>Assets\backup-driver.ico</ApplicationIcon>
-    <OutputPath>..\..\builds\$(Configuration)\1.6.6</OutputPath>
+    <OutputPath>..\..\builds\$(Configuration)\1.7.0</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <!-- Task 2 Versioning -->
-    <Version>1.6.6</Version>
-    <AssemblyVersion>1.6.6.0</AssemblyVersion>
-    <FileVersion>1.6.6.0</FileVersion>
+    <Version>1.7.0</Version>
+    <AssemblyVersion>1.7.0.0</AssemblyVersion>
+    <FileVersion>1.7.0.0</FileVersion>
+    <!-- Application Properties -->
+    <Authors>vinicius gadelha</Authors>
+    <Company>vinicius gadelha</Company>
+    <Product>Drive Backup</Product>
+    <Description>Sistema de Backup Automatizado</Description>
+    <Copyright>Copyright © 2026 vinicius gadelha</Copyright>
   </PropertyGroup>
 
   <!-- Task 3 Obfuscar Config -->

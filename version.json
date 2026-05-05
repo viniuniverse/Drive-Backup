@@ -1,5 +1,5 @@
 {
-  "version": "1.6.6",
-  "releaseUrl": "https://github.com/viniuniverse/Drive-Backup/releases/tag/v1.6.6",
-  "releaseNotes": "Versão 1.6.6 — lançamento público inicial. Backup local e em nuvem, agendamento automático, healthcheck e notificações."
+  "version": "1.7.0",
+  "releaseUrl": "https://github.com/viniuniverse/Drive-Backup/releases/tag/v1.7.0",
+  "releaseNotes": "Versão 1.7.0 — Infraestrutura PRO com Feature Toggles. Sistema de licenciamento RSA-2048 com persistência segura DPAPI. ScrollViewer nas abas Config e Schedule."
 }

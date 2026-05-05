@@ -20,6 +20,11 @@ public partial class ConfigViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
     private readonly IFolderPickerService _folderPickerService;
 
+    // v1.7.0: Serviços de licenciamento PRO (ADR-005 / T1-T2)
+    private readonly ILicenseValidatorService _licenseValidator;
+    private readonly ILicenseStorage _licenseStorage;
+    private MainWindowViewModel? _mainWindowVm;
+
     [ObservableProperty]
     private string _firebirdPath = string.Empty;
 
@@ -31,6 +36,9 @@ public partial class ConfigViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _password = string.Empty;
+
+    [ObservableProperty]
+    private int _port = 3050; // New v1.6.6
 
     [ObservableProperty]
     private string _backupOutputPath = string.Empty;
@@ -57,13 +65,25 @@ public partial class ConfigViewModel : ViewModelBase
     [ObservableProperty]
     private string _statusMessage = string.Empty;
 
+    // v1.7.0: Feature Toggle PRO — campo de entrada e status da licença (ADR-005 / T4)
+    [ObservableProperty]
+    private string _licenseKey = string.Empty;
+
+    [ObservableProperty]
+    private string _licenseStatus = string.Empty;
+
+    [ObservableProperty]
+    private bool _isActivatingLicense;
+
     public ConfigViewModel(
         IConfigManager configManager,
         ISecureStorage secureStorage,
         IFileSystemService fileSystem,
         ILogger logger,
         IDialogService dialogService,
-        IFolderPickerService folderPickerService)
+        IFolderPickerService folderPickerService,
+        ILicenseValidatorService licenseValidator,
+        ILicenseStorage licenseStorage)
     {
         _configManager = configManager;
         _secureStorage = secureStorage;
@@ -71,8 +91,16 @@ public partial class ConfigViewModel : ViewModelBase
         _logger = logger;
         _dialogService = dialogService;
         _folderPickerService = folderPickerService;
+        _licenseValidator = licenseValidator;
+        _licenseStorage = licenseStorage;
         LoadConfig();
     }
+
+    /// <summary>
+    /// Referencia o MainWindowViewModel para propagar SetProState após ativação.
+    /// Injetado pelo App.axaml.cs após construção do DI.
+    /// </summary>
+    internal void SetMainWindowViewModel(MainWindowViewModel vm) => _mainWindowVm = vm;
 
     private void LoadConfig()
     {
@@ -81,6 +109,7 @@ public partial class ConfigViewModel : ViewModelBase
         DbPath = config.Firebird.DbPath;
         User = config.Firebird.User;
         Password = config.Firebird.Password;
+        Port = config.Firebird.Port;
         BackupOutputPath = config.Backup.OutputPath;
         ZipPassword = config.Backup.ZipPassword;
         RetentionHours = config.Backup.RetentionHours;
@@ -98,47 +127,62 @@ public partial class ConfigViewModel : ViewModelBase
             return;
         }
 
-        IsTesting = true;
-        ConnectionTestResult = "Testando conexão...";
-
-        var gbakPath = System.IO.Path.Combine(FirebirdPath, "gbak.exe");
-        if (!_fileSystem.FileExists(gbakPath))
+        try
         {
-            ConnectionTestResult = "❌ gbak.exe não encontrado no caminho informado.";
+            IsTesting = true;
+            ConnectionTestResult = "Testando conexão...";
+
+            var gbakPath = System.IO.Path.Combine(FirebirdPath, "gbak.exe");
+            if (!_fileSystem.FileExists(gbakPath))
+            {
+                ConnectionTestResult = "❌ gbak.exe não encontrado no caminho informado.";
+                await _dialogService.ShowMessageAsync("Falha na Conexão", "gbak.exe não encontrado no caminho informado.", DialogType.Error);
+                return;
+            }
+
+            if (!_fileSystem.FileExists(DbPath))
+            {
+                ConnectionTestResult = "❌ Arquivo .FDB não encontrado.";
+                await _dialogService.ShowMessageAsync("Falha na Conexão", "Arquivo .FDB não encontrado.", DialogType.Error);
+                return;
+            }
+
+            var processRunner = new ProcessRunner();
+            var result = await processRunner.RunAsync(
+                gbakPath,
+                $"-b -user {User} -pass {Password} \"localhost/{Port}:{DbPath}\" nul -v",
+                new ProcessRunnerOptions { Timeout = TimeSpan.FromSeconds(30), CancellationToken = token }
+            );
+
+            if (result.Success)
+            {
+                _ = SetTransientStatusAsync(s => ConnectionTestResult = s, "✅ Conexão bem-sucedida!");
+                _logger.Ok("Teste de conexão Firebird bem-sucedido.");
+                await _dialogService.ShowMessageAsync("Conexão Bem-sucedida", "A conexão com o banco Firebird foi estabelecida com sucesso!", DialogType.Success);
+            }
+            else
+            {
+                _ = SetTransientStatusAsync(s => ConnectionTestResult = s, $"❌ Falha: {result.StandardError}");
+                _logger.Error($"Teste de conexão falhou: {result.StandardError}");
+                await _dialogService.ShowMessageAsync("Falha na Conexão", $"Não foi possível conectar ao banco Firebird.\n\nDetalhe: {result.StandardError}", DialogType.Error);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            ConnectionTestResult = "❌ Operação cancelada.";
+        }
+        catch (Exception ex)
+        {
+            // T1: Fixar Falhas - Notificar timeout ou erro desconhecido
+            ConnectionTestResult = "❌ Falha ao conectar: Tempo limite excedido ou erro desconhecido.";
+            _logger.Error($"Exceção no teste de conexão: {ex.Message}");
+            await _dialogService.ShowMessageAsync("Falha na Conexão", $"Erro inesperado: {ex.Message}", DialogType.Error);
+        }
+        finally
+        {
+            // T1: Estabilizar - Centralizar reset do estado de teste
             IsTesting = false;
-            await _dialogService.ShowMessageAsync("Falha na Conexão", "gbak.exe não encontrado no caminho informado.", DialogType.Error);
-            return;
         }
-
-        if (!_fileSystem.FileExists(DbPath))
-        {
-            ConnectionTestResult = "❌ Arquivo .FDB não encontrado.";
-            IsTesting = false;
-            await _dialogService.ShowMessageAsync("Falha na Conexão", "Arquivo .FDB não encontrado.", DialogType.Error);
-            return;
-        }
-
-        var processRunner = new ProcessRunner();
-        var result = await processRunner.RunAsync(
-            gbakPath,
-            $"-b -user {User} -pass {Password} \"{DbPath}\" nul -v",
-            new ProcessRunnerOptions { Timeout = TimeSpan.FromSeconds(30), CancellationToken = token }
-        );
-
-        if (result.Success)
-        {
-            _ = SetTransientStatusAsync(s => ConnectionTestResult = s, "✅ Conexão bem-sucedida!");
-            _logger.Ok("Teste de conexão Firebird bem-sucedido.");
-            await _dialogService.ShowMessageAsync("Conexão Bem-sucedida", "A conexão com o banco Firebird foi estabelecida com sucesso!", DialogType.Success);
-        }
-        else
-        {
-            _ = SetTransientStatusAsync(s => ConnectionTestResult = s, $"❌ Falha: {result.StandardError}");
-            _logger.Error($"Teste de conexão falhou: {result.StandardError}");
-            await _dialogService.ShowMessageAsync("Falha na Conexão", $"Não foi possível conectar ao banco Firebird.\n\nDetalhe: {result.StandardError}", DialogType.Error);
-        }
-
-        IsTesting = false;
     }
 
     [RelayCommand]
@@ -180,6 +224,7 @@ public partial class ConfigViewModel : ViewModelBase
         config.Firebird.DbPath = DbPath;
         config.Firebird.User = User;
         config.Firebird.Password = Password;
+        config.Firebird.Port = Port;
         config.Backup.OutputPath = BackupOutputPath;
         config.Backup.ZipPassword = ZipPassword;
         config.Backup.RetentionHours = RetentionHours;
@@ -204,6 +249,7 @@ public partial class ConfigViewModel : ViewModelBase
         DbPath = string.Empty;
         User = "SYSDBA";
         Password = string.Empty;
+        Port = 3050;
         BackupOutputPath = string.Empty;
         ZipPassword = string.Empty;
         RetentionHours = 72;
@@ -237,4 +283,80 @@ public partial class ConfigViewModel : ViewModelBase
         if (result != null)
             BackupOutputPath = result;
     }
-}
+
+    // ─── Licenciamento PRO (ADR-005 / T4) ────────────────────────────────────
+
+    /// <summary>
+    /// Valida a chave digitada pelo usuário via RSA, persiste com DPAPI e ativa o modo PRO.
+    /// </summary>
+    [RelayCommand]
+    private async Task ActivateLicenseAsync()
+    {
+        if (string.IsNullOrWhiteSpace(LicenseKey))
+        {
+            LicenseStatus = "⚠️ Cole sua chave de licença no campo acima.";
+            return;
+        }
+
+        IsActivatingLicense = true;
+        LicenseStatus = "⏳ Validando licença...";
+
+        try
+        {
+            // Validação criptográfica RSA (não bloqueia a UI por rodar via Task.Run)
+            var claims = await Task.Run(() => _licenseValidator.ValidateLicense(LicenseKey));
+
+            if (claims == null || claims.Tier != "PRO")
+            {
+                LicenseStatus = "❌ Chave inválida ou expirada. Verifique e tente novamente.";
+                _logger.Error("Tentativa de ativação de licença PRO falhou: chave inválida.");
+                return;
+            }
+
+            // Persistir a licença de forma segura com DPAPI
+            _licenseStorage.Save(LicenseKey);
+
+            // Propagar o estado PRO para toda a aplicação
+            _mainWindowVm?.SetProState(true);
+
+            var expiryText = claims.Expires.HasValue
+                ? $" | Válida até: {claims.Expires.Value:dd/MM/yyyy}"
+                : "";
+
+            LicenseStatus = $"✅ Licença PRO ativada! Cliente: {claims.Client}{expiryText}";
+            _logger.Ok($"Licença PRO ativada para: {claims.Client}");
+
+            await _dialogService.ShowMessageAsync(
+                "🎉 Licença PRO Ativada!",
+                $"Bem-vindo ao Drive Backup PRO, {claims.Client}!\n\nTodas as funcionalidades corporativas estão liberadas.",
+                DialogType.Success);
+        }
+        catch (Exception ex)
+        {
+            LicenseStatus = "❌ Erro ao processar a licença.";
+            _logger.Error($"Exceção ao ativar licença: {ex.Message}");
+        }
+        finally
+        {
+            IsActivatingLicense = false;
+        }
+    }
+
+    /// <summary>
+    /// Remove a licença salva e retorna ao modo FREE.
+    /// </summary>
+    [RelayCommand]
+    private async Task ClearLicenseAsync()
+    {
+        _licenseStorage.Clear();
+        _mainWindowVm?.SetProState(false);
+        LicenseKey = string.Empty;
+        LicenseStatus = "🔓 Licença removida. Modo FREE ativado.";
+        _logger.Ok("Licença PRO removida pelo usuário.");
+
+        await _dialogService.ShowMessageAsync(
+            "Licença Removida",
+            "A licença PRO foi removida. O software voltou ao modo FREE.",
+            DialogType.Info);
+    }
+}

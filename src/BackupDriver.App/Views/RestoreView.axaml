@@ -37,7 +37,7 @@
                         Foreground="{DynamicResource AccentSecondary}" Padding="8,6"/>
             </Grid>
 
-            <TextBlock Text="────────── Progresso ──────────" Foreground="{DynamicResource CardBorder}"
+            <TextBlock Text="────────── Progresso ──────────" Foreground="White" Opacity="0.5"
                        HorizontalAlignment="Center" Margin="0,10,0,0"/>
 
             <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="15"

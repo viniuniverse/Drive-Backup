@@ -49,6 +49,10 @@ public partial class App : Application
             var services = ConfigureServices();
             var mainWindowViewModel = services.GetRequiredService<MainWindowViewModel>();
 
+            // v1.7.0: Injeta referência circular resolvida após DI estar pronto (ADR-005 / T4)
+            // Permite que ConfigViewModel propague SetProState() ao ativar uma licença
+            services.GetRequiredService<ConfigViewModel>().SetMainWindowViewModel(mainWindowViewModel);
+
             var mainWindow = new MainWindow
             {
                 DataContext = mainWindowViewModel,
@@ -127,6 +131,11 @@ public partial class App : Application
                 sp.GetRequiredService<ISecureStorage>(),
                 sp.GetRequiredService<ILogger>(),
                 configPath));
+
+        // v1.7.0: Licenciamento PRO — Feature Toggles (ADR-005 / T1-T2)
+        // Validator usa chave pública RSA embutida; Storage usa DPAPI do Windows
+        services.AddSingleton<ILicenseValidatorService, LicenseValidatorService>();
+        services.AddSingleton<ILicenseStorage, LicenseStorage>();
 
         // ── Dependências externas ──
         // v1.6: SevenZipInstaller removido do DI (T-1.6.12) — substituído por SharpZipLib
