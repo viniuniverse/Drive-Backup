@@ -22,6 +22,18 @@
     <Copyright>Copyright © 2026 vinicius gadelha</Copyright>
   </PropertyGroup>
 
+  <!-- v1.7.0: Publish único executável — embute DLLs nativas (Skia, HarfBuzz, ANGLE) no .exe -->
+  <!-- Condição: somente quando publicando com RuntimeIdentifier (win-x64 / win-x86)           -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- Embute DLLs nativas no bundle — elimina arquivos soltos ao lado do .exe -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <ReadyToRun>true</ReadyToRun>
+    <DebugType>None</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
   <!-- Task 3 Obfuscar Config -->
   <ItemGroup>
     <None Update="obfuscar.xml">
