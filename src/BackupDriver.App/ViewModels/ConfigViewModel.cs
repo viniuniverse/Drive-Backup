@@ -118,7 +118,7 @@ public partial class ConfigViewModel : ViewModelBase
         LogRetentionDays = config.Log.RetentionDays;
     }
 
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task TestConnectionAsync(CancellationToken token)
     {
         if (string.IsNullOrEmpty(FirebirdPath) || string.IsNullOrEmpty(DbPath))
