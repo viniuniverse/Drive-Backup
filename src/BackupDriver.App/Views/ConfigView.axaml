@@ -5,7 +5,8 @@
              x:DataType="vm:ConfigViewModel">
 
     <!-- v1.6: Paleta Obsidian Gold (ADR-01) -->
-    <StackPanel Spacing="12">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12">
         <TextBlock Text="⚙️ Configuração Geral" FontSize="24" FontWeight="Bold"
                    Foreground="{DynamicResource AccentSecondary}"/>
 
@@ -100,5 +101,6 @@
                    IsVisible="{Binding ConnectionTestResult, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
         <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource InfoColor}"
                    IsVisible="{Binding StatusMessage, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"/>
-    </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
